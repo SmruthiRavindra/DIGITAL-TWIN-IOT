@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Real-time Digital Twin Dashboard with AI-powered failure prediction for turbofan engines using NASA CMAPSS data." />
+  <title>Digital Twin AI — Failure Predictor</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="header" id="main-header">
+    <div class="header-left">
+      <div class="logo">⚙️</div>
+      <div class="header-title">
+        <h1>Digital Twin AI — Failure Predictor</h1>
+        <span>Turbofan Engine RUL Monitoring · Industry 4.0</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="status-chip nominal" id="status-chip">
+        <span class="status-dot"></span>
+        <span id="status-label">NOMINAL</span>
+      </div>
+      <div class="cycle-counter">
+        Cycle: <strong id="cycle-count">0</strong>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <main class="dashboard">
+
+    <!-- ── Left: Live Sensor Data ── -->
+    <section class="card" id="sensor-card">
+      <div class="card-header">
+        <h2><span class="icon">📡</span> Live IoT Sensor Feed</h2>
+        <span class="card-badge badge-live">● LIVE</span>
+      </div>
+      <div class="card-body">
+        <div class="sensor-grid" id="sensor-grid">
+          <div class="sensor-item" data-sensor="sensor_2">
+            <div class="sensor-label">LPC Outlet Temp</div>
+            <div><span class="sensor-value" id="val-sensor_2">641.82</span><span class="sensor-unit">°R</span></div>
+            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sensor_2" style="width:30%"></div></div>
+          </div>
+          <div class="sensor-item" data-sensor="sensor_3">
+            <div class="sensor-label">HPC Outlet Temp</div>
+            <div><span class="sensor-value" id="val-sensor_3">1589.7</span><span class="sensor-unit">°R</span></div>
+            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sensor_3" style="width:40%"></div></div>
+          </div>
+          <div class="sensor-item" data-sensor="sensor_4">
+            <div class="sensor-label">Core Speed</div>
+            <div><span class="sensor-value" id="val-sensor_4">1400.6</span><span class="sensor-unit">rpm</span></div>
+            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sensor_4" style="width:45%"></div></div>
+          </div>
+          <div class="sensor-item" data-sensor="sensor_7">
+            <div class="sensor-label">LPT Outlet Temp</div>
+            <div><span class="sensor-value" id="val-sensor_7">553.75</span><span class="sensor-unit">°R</span></div>
+            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sensor_7" style="width:35%"></div></div>
+          </div>
+          <div class="sensor-item" data-sensor="sensor_9">
+            <div class="sensor-label">Phys Core Speed</div>
+            <div><span class="sensor-value" id="val-sensor_9">9046.2</span><span class="sensor-unit">rpm</span></div>
+            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sensor_9" style="width:50%"></div></div>
+          </div>
+          <div class="sensor-item" data-sensor="sensor_12">
+            <div class="sensor-label">Fuel Flow Ratio</div>
+            <div><span class="sensor-value" id="val-sensor_12">521.66</span><span class="sensor-unit">pps</span></div>
+            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sensor_12" style="width:38%"></div></div>
+          </div>
+          <div class="sensor-item" data-sensor="sensor_11">
+            <div class="sensor-label">HPC Outlet Press</div>
+            <div><span class="sensor-value" id="val-sensor_11">47.47</span><span class="sensor-unit">psia</span></div>
+            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sensor_11" style="width:33%"></div></div>
+          </div>
+          <div class="sensor-item" data-sensor="sensor_15">
+            <div class="sensor-label">Bypass Ratio</div>
+            <div><span class="sensor-value" id="val-sensor_15">8.44</span><span class="sensor-unit">—</span></div>
+            <div class="sensor-bar"><div class="sensor-bar-fill" id="bar-sensor_15" style="width:28%"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Right: Digital Twin ── -->
+    <section class="card" id="twin-card">
+      <div class="card-header">
+        <h2><span class="icon">🔮</span> Digital Twin — Engine Visualization</h2>
+        <span class="card-badge badge-ai">AI TWIN</span>
+      </div>
+      <div class="card-body">
+        <div class="twin-container">
+          <div class="engine-visual" id="engine-visual">
+            <div class="engine-ring ring-outer" id="ring-outer"></div>
+            <div class="engine-ring ring-middle" id="ring-middle"></div>
+            <div class="engine-ring ring-inner" id="ring-inner"></div>
+            <div class="engine-ring ring-core" id="ring-core">
+              <span style="font-size:2.5rem;" id="core-icon">⚙️</span>
+            </div>
+          </div>
+          <div class="engine-status-text nominal" id="twin-status">NOMINAL</div>
+          <div style="color:var(--muted);font-size:0.75rem;font-family:var(--font-mono);text-align:center;">
+            Degradation: <span id="degradation-val" style="color:var(--cyan);">0.00%</span>
+            &nbsp;·&nbsp;
+            RUL: <span id="rul-inline" style="color:var(--green);">200</span> cycles
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Prediction Panel ── -->
+    <section class="card prediction-panel" id="prediction-card">
+      <div class="card-header">
+        <h2><span class="icon">🧠</span> AI Prediction Engine</h2>
+        <span class="card-badge badge-ai">ML MODEL</span>
+      </div>
+      <div class="card-body">
+        <div class="prediction-grid">
+          <div class="prediction-stat">
+            <div class="stat-label">Remaining Useful Life</div>
+            <div class="stat-value cyan" id="stat-rul">200.0</div>
+            <div class="stat-sub">cycles remaining</div>
+          </div>
+          <div class="prediction-stat">
+            <div class="stat-label">Time to Failure</div>
+            <div class="stat-value green" id="stat-ttf">500.0</div>
+            <div class="stat-sub">minutes</div>
+          </div>
+          <div class="prediction-stat">
+            <div class="stat-label">AI Confidence</div>
+            <div class="stat-value purple" id="stat-confidence">92%</div>
+            <div class="stat-sub">prediction certainty</div>
+          </div>
+          <div class="prediction-stat">
+            <div class="stat-label">System Status</div>
+            <div class="stat-value green" id="stat-status">STABLE</div>
+            <div class="stat-sub" id="stat-status-sub">All systems go</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── RUL Chart ── -->
+    <section class="card" id="rul-chart-card">
+      <div class="card-header">
+        <h2><span class="icon">📉</span> RUL Trend</h2>
+      </div>
+      <div class="card-body">
+        <div class="chart-container">
+          <canvas id="rul-chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Sensor Chart ── -->
+    <section class="card" id="sensor-chart-card">
+      <div class="card-header">
+        <h2><span class="icon">📊</span> Sensor Telemetry</h2>
+      </div>
+      <div class="card-body">
+        <div class="chart-container">
+          <canvas id="sensor-chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Controls ── -->
+    <div class="controls-bar card" id="controls">
+      <button class="btn btn-success" id="btn-reset" onclick="controlEngine('reset')">🔄 Reset Engine</button>
+      <button class="btn" id="btn-speedup" onclick="controlEngine('speed_up')">⏩ Speed Up Degradation</button>
+      <button class="btn" id="btn-slowdown" onclick="controlEngine('slow_down')">⏪ Slow Down</button>
+      <button class="btn btn-danger" id="btn-pause" onclick="togglePause()">⏸ Pause</button>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    Digital Twin AI Failure Predictor · Built with FastAPI + Chart.js · NASA CMAPSS Dataset · Industry 4.0
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
