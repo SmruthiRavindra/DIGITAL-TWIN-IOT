@@ -99,7 +99,7 @@ function showCriticalOverlay(show) {
 }
 
 // ─── Auto-Reset at Max Cycles ──────────────────────────────
-function performAutoReset() {
+function performAutoReset(reason = "CYCLE LIMIT REACHED") {
   // Dramatic pause
   isPaused = true;
 
@@ -108,12 +108,12 @@ function performAutoReset() {
   if (!flash) {
     flash = document.createElement("div");
     flash.id = "failure-flash";
-    flash.innerHTML = `
-      <div class="failure-flash-text">ENGINE FAILURE — CYCLE LIMIT REACHED</div>
-      <div class="failure-flash-sub">Resetting digital twin to factory state...</div>
-    `;
     document.body.appendChild(flash);
   }
+  flash.innerHTML = `
+    <div class="failure-flash-text">ENGINE FAILURE — ${reason}</div>
+    <div class="failure-flash-sub">Resetting digital twin to factory state...</div>
+  `;
   flash.classList.add("visible");
 
   // After 2.5 seconds, reset everything
@@ -310,7 +310,7 @@ function simulateLocal() {
 
   // Auto-reset at max cycle life
   if (cycle >= MAX_CYCLE_LIFE) {
-    performAutoReset();
+    performAutoReset("CYCLE LIMIT REACHED");
     // Return safe data for this final frame
     return {
       cycle: MAX_CYCLE_LIFE,
@@ -361,11 +361,23 @@ function simulateLocal() {
 
 // ─── Dashboard Update ──────────────────────────────────────
 function updateDashboard(data) {
+  if (isPaused) return; // Don't process incoming updates if we're in the failure sequence
+
   const { sensors, prediction, degradation } = data;
-  const cyc = data.cycle || cycle;
+  let cyc = data.cycle || cycle;
+
+  // Lock RUL at 0 to prevent bouncing and trigger failure
+  let triggeredFailure = false;
+  if (prediction && prediction.rul_cycles <= 0) {
+    prediction.rul_cycles = 0;
+    prediction.rul_minutes = 0;
+    prediction.status = "FAILURE_IMMINENT";
+    triggeredFailure = true;
+  }
 
   // Update cycle counter
   document.getElementById("cycle-count").textContent = cyc;
+
 
   // Update cycle progress bar
   const progressBar = document.getElementById("cycle-progress-fill");
@@ -449,6 +461,11 @@ function updateDashboard(data) {
       });
     }
     previousStatus = status;
+
+    // Trigger auto-reset if RUL hit 0
+    if (triggeredFailure && !isPaused) {
+      setTimeout(() => performAutoReset("RUL REACHED 0"), 100);
+    }
 
     // Update 3D digital twin
     if (typeof updateEngine3D === 'function') {

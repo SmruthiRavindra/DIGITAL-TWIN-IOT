@@ -1,66 +1,42 @@
 # 🔮 Digital Twin AI — Failure Predictor
 
-> **Industry 4.0** real-time digital twin dashboard with **ML-powered failure prediction** for turbofan engines using the NASA CMAPSS dataset.
+> **Industry 4.0** real-time digital twin dashboard with **ML-powered predictive maintenance** for turbofan engines. Built on the NASA CMAPSS dataset.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?style=flat-square&logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.104-009688?style=flat-square&logo=fastapi)
 ![XGBoost](https://img.shields.io/badge/XGBoost-2.0-orange?style=flat-square)
-![Chart.js](https://img.shields.io/badge/Chart.js-4.4-ff6384?style=flat-square)
+![Three.js](https://img.shields.io/badge/Three.js-Procedural-black?style=flat-square)
+![Chart.js](https://img.shields.io/badge/Chart.js-Live-ff6384?style=flat-square)
 
 ---
 
 ## 💡 What Is This?
 
-A **live digital twin** of a turbofan jet engine that:
+A **live digital twin** of a turbofan jet engine designed for hackathon and presentation environments. It bridges the gap between deep Machine Learning and high-fidelity front-end visualization.
 
-| Left Panel | Right Panel |
+| Left Panel (IoT Data) | Right Panel (Digital Twin) |
 |---|---|
-| 📡 Real-time simulated IoT sensor feed | 🔮 Animated digital twin visualization |
-| 📊 Live telemetry charts | 🧠 AI predicts RUL & failure timing |
+| 📡 Real-time simulated IoT sensor feed | 🔮 **Procedural 3D** engine visualization (Three.js) |
+| 📊 Live telemetry charts (Chart.js) | 🧠 AI predicts RUL & failure timing (XGBoost) |
+| 🚨 Live Health Status & Degradation % | 🔊 **Web Audio API** critical failure alarms |
 
-The ML model predicts **Remaining Useful Life (RUL)** and classifies the engine state:
+The ML model predicts the **Remaining Useful Life (RUL)** and classifies the engine state:
 
 - ✅ `NOMINAL` — System stable
 - 👀 `WATCH` — Minor degradation detected
 - ⚠️ `WARNING` — Maintenance recommended soon
 - 🚨 `CRITICAL` — Failure in ~10 minutes!
-- 💀 `FAILURE_IMMINENT` — Immediate action required
+- 💀 `FAILURE_IMMINENT` — Immediate action required (Triggers Auto-Reset)
 
 ---
 
-## 🎯 Why This Is Killer
+## 🎯 Key Features (v2.0)
 
-- **"Digital Twin"** = buzzword judges LOVE
-- Feels like **Industry 4.0** level innovation
-- Real **NASA dataset** (CMAPSS Turbofan Degradation)
-- **Live streaming** sensor data with Server-Sent Events
-- Works in **demo mode** even without a trained model
-
----
-
-## 🗂️ Project Structure
-
-```
-digital-twin-ai-predictor/
-├── data/
-│   ├── raw/                 # NASA CMAPSS .txt files
-│   └── processed/           # Scaled/windowed training data
-├── notebooks/
-│   └── 01_eda_and_training.ipynb
-├── models/
-│   ├── turbo_model.pkl      # Trained XGBoost model
-│   └── scaler.joblib        # Fitted MinMaxScaler
-├── backend/
-│   ├── main.py              # FastAPI server
-│   ├── model_utils.py       # Model loading & preprocessing
-│   └── requirements.txt
-├── frontend/
-│   ├── index.html           # Dashboard UI
-│   ├── assets/style.css     # Cyberpunk dark theme
-│   └── script.js            # Live polling & Chart.js
-├── .gitignore
-└── README.md
-```
+- **Procedural 3D Digital Twin:** The engine is generated entirely via math and Three.js primitives. No bulky `.glb` or `.gltf` files are required.
+- **Explainable AI (XAI):** The model includes `GridSearchCV` hyperparameter tuning, testing 27 models to find the perfect fit. Validation plots (`actual_vs_predicted.png` and `feature_importance.png`) prove the model generalizes and highlight *which* sensors drive failure.
+- **Dynamic Failure Reports:** Click "Generate Report" to instantly snapshot the engine's telemetry, cross-reference sensors against healthy baselines, and generate a printable PDF failure diagnostic.
+- **"Speed Up" Demo Controls:** Built specifically for judges. You can accelerate the engine's degradation by 32x to show a full 300-cycle life and failure loop in under 30 seconds.
+- **Immersive UX:** Features CRT scanlines, glowing cards, color-shifting telemetry, and a dual-oscillator synthesized alarm that triggers when the engine hits critical mass.
 
 ---
 
@@ -73,7 +49,7 @@ git clone https://github.com/YOUR_USERNAME/digital-twin-ai-predictor.git
 cd digital-twin-ai-predictor
 ```
 
-### 2. Backend
+### 2. Backend (FastAPI + XGBoost)
 
 ```bash
 cd backend
@@ -82,9 +58,9 @@ python main.py
 # Server runs at http://localhost:8000
 ```
 
-### 3. Frontend
+### 3. Frontend (3D UI)
 
-Open `frontend/index.html` in your browser, or serve it:
+Open `frontend/index.html` in your browser, or serve it locally:
 
 ```bash
 cd frontend
@@ -92,13 +68,18 @@ python -m http.server 5500
 # Dashboard at http://localhost:5500
 ```
 
-> 💡 The frontend works in **demo mode** (local simulation) even if the backend is not running!
+> 💡 **Demo Mode:** The frontend works in a localized **demo mode** even if the FastAPI backend is offline. Perfect for quick presentations!
 
-### 4. Train Your Own Model (Optional)
+### 4. Train the AI (The Lab)
 
-1. Download [NASA CMAPSS dataset](https://www.kaggle.com/datasets/behrad3d/nasa-cmaps) → place in `data/raw/`
-2. Open `notebooks/01_eda_and_training.ipynb` in Jupyter/Colab
-3. Run all cells — model saves to `models/`
+The training pipeline automatically downloads the NASA dataset, runs GridSearchCV, and generates validation plots.
+
+```bash
+# From the project root directory
+pip install kagglehub xgboost scikit-learn matplotlib seaborn pandas
+python train_model.py
+```
+Check the `models/` folder for your new `turbo_model.pkl` and validation graphs!
 
 ---
 
@@ -106,12 +87,13 @@ python -m http.server 5500
 
 | Layer | Technology |
 |---|---|
-| **ML Model** | XGBoost / scikit-learn |
+| **ML Model** | XGBoost (GridSearchCV) / Scikit-learn |
 | **Backend** | FastAPI + Uvicorn |
-| **Frontend** | Vanilla JS + Chart.js 4 |
-| **Styling** | Custom CSS (Cyberpunk dark theme) |
-| **Data** | NASA CMAPSS Turbofan Degradation |
-| **Streaming** | Server-Sent Events (SSE) |
+| **Frontend UI** | Vanilla HTML/CSS/JS + Chart.js |
+| **3D Engine** | Three.js (Procedural Generation) |
+| **Styling** | Custom CSS (Cyberpunk dark theme, CRT effects) |
+| **Data** | NASA CMAPSS Turbofan Degradation Dataset |
+| **Audio** | Web Audio API (Synthesized Alarms) |
 
 ---
 
@@ -131,4 +113,4 @@ python -m http.server 5500
 
 ## 📜 License
 
-MIT — use it, fork it, win hackathons with it. 🏆
+MIT — use it, fork it, and win hackathons with it. 🏆
