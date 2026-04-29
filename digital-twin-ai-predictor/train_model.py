@@ -121,26 +121,40 @@ X_train, X_test, y_train, y_test = train_test_split(
 print(f"✅  Train: {X_train.shape}, Test: {X_test.shape}")
 
 # ─── 5. Train XGBoost ──────────────────────────────────────
-print("\n" + "=" * 60)
-print("🧠  STEP 5: Training XGBoost model")
-print("=" * 60)
+from sklearn.model_selection import GridSearchCV
 
-model = xgb.XGBRegressor(
-    n_estimators=200,
-    max_depth=6,
-    learning_rate=0.1,
-    subsample=0.8,
-    colsample_bytree=0.8,
+print("\n" + "=" * 60)
+print("🧠  STEP 5: Training XGBoost model with Grid Search")
+print("=" * 60)
+print("Starting exhaustive Hyperparameter Grid Search... This will take a moment.")
+
+# Define the base model
+xgb_base = xgb.XGBRegressor(
     objective="reg:squarederror",
     random_state=42,
     n_jobs=-1,
 )
 
-model.fit(
-    X_train, y_train,
-    eval_set=[(X_test, y_test)],
-    verbose=50,
+# Define the parameters we want the computer to test
+param_grid = {
+    'n_estimators': [100, 200, 300],
+    'learning_rate': [0.01, 0.05, 0.1],
+    'max_depth': [3, 5, 7]
+}
+
+# Run the search (This trains 27 different models under the hood!)
+grid_search = GridSearchCV(
+    estimator=xgb_base, 
+    param_grid=param_grid, 
+    cv=3, 
+    scoring='neg_root_mean_squared_error', 
+    verbose=2
 )
+grid_search.fit(X_train, y_train)
+
+# Use the best model it found
+model = grid_search.best_estimator_
+print(f"✅  Best parameters found: {grid_search.best_params_}")
 
 # ─── 6. Evaluate ───────────────────────────────────────────
 print("\n" + "=" * 60)
