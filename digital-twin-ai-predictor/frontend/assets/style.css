@@ -298,76 +298,147 @@ body::before {
 
 .sensor-bar-fill.warn { background: linear-gradient(90deg, var(--orange), var(--red)); }
 
-/* ── Digital Twin Visualization ────────────────────────────── */
-.twin-container {
+/* ── 3D Digital Twin Viewport ─────────────────────────────── */
+.twin-container-3d {
+  display: flex;
+  flex-direction: column;
+}
+
+#engine-3d-viewport {
+  width: 100%;
+  height: 380px;
+  position: relative;
+  cursor: grab;
+  overflow: hidden;
+  background: radial-gradient(ellipse at center, rgba(0,240,255,0.03) 0%, transparent 70%);
+}
+
+#engine-3d-viewport:active { cursor: grabbing; }
+
+#engine-3d-viewport canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.twin-info-bar {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  padding: 20px;
+  gap: 6px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.25);
 }
 
-.engine-visual {
-  position: relative;
-  width: 280px;
-  height: 280px;
-}
-
-.engine-ring {
+/* ── 3D HUD Overlays ──────────────────────────────────────── */
+#hud-rul-3d {
   position: absolute;
-  border-radius: 50%;
-  border: 2px solid;
+  top: 12px;
+  left: 14px;
+  z-index: 10;
+  background: rgba(6, 10, 19, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 240, 255, 0.15);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  pointer-events: none;
+}
+
+#hud-rul-3d .hud-label {
+  font-size: 0.55rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 2px;
+}
+
+#hud-rul-3d .hud-value {
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--cyan);
+  line-height: 1.1;
+}
+
+#hud-rul-3d .hud-unit {
+  font-size: 0.6rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+/* HUD color states */
+#hud-rul-3d.hud-nominal .hud-value,
+#hud-rul-3d.hud-watch .hud-value { color: var(--cyan); }
+#hud-rul-3d.hud-warning .hud-value { color: var(--orange); }
+#hud-rul-3d.hud-critical .hud-value,
+#hud-rul-3d.hud-failure_imminent .hud-value { color: var(--red); }
+
+#hud-rul-3d.hud-critical,
+#hud-rul-3d.hud-failure_imminent {
+  border-color: rgba(255, 51, 102, 0.3);
+  animation: criticalPulse 0.8s infinite;
+}
+
+#hud-status-3d {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 10;
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: all 0.5s;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+  background: rgba(6, 10, 19, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  color: var(--green);
 }
 
-.ring-outer {
-  inset: 0;
-  border-color: rgba(0, 240, 255, 0.2);
-  animation: ringRotate 20s linear infinite;
+#hud-status-3d .hud-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: dotPulse 1.5s ease-in-out infinite;
 }
 
-.ring-middle {
-  inset: 30px;
-  border-color: rgba(0, 240, 255, 0.3);
-  animation: ringRotate 12s linear infinite reverse;
+#hud-status-3d.hud-chip-nominal,
+#hud-status-3d.hud-chip-watch { color: var(--green); border-color: rgba(0,255,136,0.2); }
+#hud-status-3d.hud-chip-warning { color: var(--orange); border-color: rgba(255,159,67,0.2); }
+#hud-status-3d.hud-chip-critical,
+#hud-status-3d.hud-chip-failure_imminent {
+  color: var(--red);
+  border-color: rgba(255,51,102,0.3);
+  animation: criticalPulse 0.8s infinite;
 }
 
-.ring-inner {
-  inset: 60px;
-  border-color: rgba(0, 240, 255, 0.5);
-  animation: ringRotate 6s linear infinite;
-}
-
-.ring-core {
-  inset: 90px;
-  border-color: var(--cyan);
-  background: rgba(0, 240, 255, 0.05);
-  box-shadow: 0 0 40px rgba(0, 240, 255, 0.15), inset 0 0 30px rgba(0, 240, 255, 0.05);
-}
-
-@keyframes ringRotate { to { transform: rotate(360deg); } }
-
-/* Ring tick marks */
-.ring-tick {
+/* ── Component Labels ─────────────────────────────────────── */
+#hud-labels-3d {
   position: absolute;
-  width: 2px;
-  height: 8px;
-  background: var(--cyan);
-  opacity: 0.6;
-  border-radius: 1px;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
 }
 
-.engine-label {
+.engine-component-label {
   position: absolute;
   font-family: var(--font-mono);
-  font-size: 0.65rem;
-  color: var(--cyan);
-  white-space: nowrap;
+  font-size: 0.55rem;
+  color: rgba(0, 240, 255, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
+/* ── Engine Status Text (below viewport) ──────────────────── */
 .engine-status-text {
   font-family: var(--font-mono);
   font-size: 1.5rem;
@@ -380,12 +451,6 @@ body::before {
 .engine-status-text.watch { color: var(--yellow); text-shadow: 0 0 20px rgba(255,215,0,0.4); }
 .engine-status-text.warning { color: var(--orange); text-shadow: 0 0 20px rgba(255,159,67,0.4); }
 .engine-status-text.critical { color: var(--red); text-shadow: 0 0 20px rgba(255,51,102,0.4); animation: criticalPulse 0.8s infinite; }
-
-/* Status change animation for rings */
-.engine-ring.state-warning { border-color: rgba(255, 159, 67, 0.4) !important; }
-.engine-ring.state-critical { border-color: rgba(255, 51, 102, 0.5) !important; }
-.ring-core.state-warning { background: rgba(255, 159, 67, 0.08) !important; box-shadow: 0 0 40px rgba(255, 159, 67, 0.2) !important; }
-.ring-core.state-critical { background: rgba(255, 51, 102, 0.08) !important; box-shadow: 0 0 40px rgba(255, 51, 102, 0.3) !important; }
 
 /* ── Prediction Panel ──────────────────────────────────────── */
 .prediction-panel {
@@ -497,6 +562,16 @@ body::before {
   box-shadow: var(--glow-green);
 }
 
+.btn.btn-report {
+  border-color: rgba(168, 85, 247, 0.3);
+  color: var(--purple);
+}
+.btn.btn-report:hover {
+  border-color: var(--purple);
+  background: rgba(168, 85, 247, 0.12);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+}
+
 /* ── Footer ────────────────────────────────────────────────── */
 .footer {
   text-align: center;
@@ -537,4 +612,242 @@ body::before {
   .dashboard { padding: 10px 12px; }
   .sensor-grid { grid-template-columns: 1fr; }
   .prediction-grid { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AWARD-WINNING POLISH — v2.0
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Cycle Progress Bar (Header) ──────────────────────────── */
+.cycle-max {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.7rem;
+}
+
+.cycle-progress {
+  width: 100%;
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.cycle-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--green));
+  transition: width 0.5s ease;
+}
+
+.cycle-progress-fill.warn {
+  background: linear-gradient(90deg, var(--green), var(--orange));
+}
+
+.cycle-progress-fill.danger {
+  background: linear-gradient(90deg, var(--orange), var(--red));
+  animation: progressPulse 1s ease-in-out infinite;
+}
+
+@keyframes progressPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ── Scanline Overlay (3D Viewport) ───────────────────────── */
+.scanline-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 240, 255, 0.015) 2px,
+    rgba(0, 240, 255, 0.015) 4px
+  );
+  animation: scanlineScroll 12s linear infinite;
+}
+
+@keyframes scanlineScroll {
+  from { background-position: 0 0; }
+  to { background-position: 0 200px; }
+}
+
+/* ── Critical Alert Overlay ───────────────────────────────── */
+#critical-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 80px;
+  background: rgba(255, 51, 102, 0.06);
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+#critical-overlay.visible {
+  opacity: 1;
+}
+
+.critical-overlay-content {
+  text-align: center;
+  padding: 24px 40px;
+  background: rgba(10, 4, 8, 0.92);
+  border: 2px solid rgba(255, 51, 102, 0.5);
+  border-radius: var(--radius);
+  box-shadow: 0 0 60px rgba(255, 51, 102, 0.25), inset 0 0 30px rgba(255, 51, 102, 0.05);
+  animation: criticalOverlayPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes criticalOverlayPulse {
+  0%, 100% { border-color: rgba(255, 51, 102, 0.5); box-shadow: 0 0 60px rgba(255, 51, 102, 0.25); }
+  50% { border-color: rgba(255, 51, 102, 0.9); box-shadow: 0 0 100px rgba(255, 51, 102, 0.4); }
+}
+
+.critical-icon {
+  font-size: 3rem;
+  margin-bottom: 8px;
+  animation: criticalIconBounce 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes criticalIconBounce {
+  from { transform: scale(1); }
+  to { transform: scale(1.15); }
+}
+
+.critical-title {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--red);
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 20px rgba(255,51,102,0.6);
+  margin-bottom: 6px;
+}
+
+.critical-subtitle {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.critical-rul {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--red);
+}
+
+/* ── Failure Flash (Auto-Reset) ───────────────────────────── */
+#failure-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 51, 102, 0.15);
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+#failure-flash.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.failure-flash-text {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--red);
+  text-shadow: 0 0 40px rgba(255,51,102,0.8);
+  letter-spacing: 0.15em;
+  animation: flashTextPulse 0.5s ease-in-out infinite;
+  text-align: center;
+}
+
+@keyframes flashTextPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.failure-flash-sub {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.6);
+  margin-top: 12px;
+  letter-spacing: 0.05em;
+}
+
+/* ── Alarm Active — Global Red Vignette ───────────────────── */
+body.alarm-active::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 400;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(255, 51, 102, 0.12) 100%);
+  animation: alarmVignette 1.2s ease-in-out infinite;
+}
+
+@keyframes alarmVignette {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Alarm border glow on twin card */
+body.alarm-active #twin-card {
+  border-color: rgba(255, 51, 102, 0.5) !important;
+  box-shadow: 0 0 30px rgba(255, 51, 102, 0.2), inset 0 0 15px rgba(255, 51, 102, 0.03) !important;
+}
+
+body.alarm-active .header {
+  border-bottom-color: rgba(255, 51, 102, 0.3) !important;
+}
+
+/* ── Stat Value Transitions ───────────────────────────────── */
+.stat-value {
+  transition: color 0.5s ease, text-shadow 0.5s ease;
+}
+
+.stat-value.red {
+  text-shadow: 0 0 15px rgba(255,51,102,0.4);
+}
+
+.stat-value.cyan {
+  text-shadow: 0 0 15px rgba(0,240,255,0.3);
+}
+
+.stat-value.green {
+  text-shadow: 0 0 15px rgba(0,255,136,0.3);
+}
+
+/* ── Card Glow Enhancement ────────────────────────────────── */
+.card {
+  transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* ── Enhanced Sensor Item Micro-animations ────────────────── */
+.sensor-value {
+  transition: color 0.3s, transform 0.2s;
+}
+
+.sensor-value.flash {
+  transform: scale(1.05);
 }

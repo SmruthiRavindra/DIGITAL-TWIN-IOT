@@ -14,6 +14,8 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import xgboost as xgb
 import joblib
 import kagglehub
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # ─── Paths ──────────────────────────────────────────────────
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -178,6 +180,41 @@ joblib.dump(meta, os.path.join(MODEL_DIR, "model_meta.joblib"))
 print(f"✅  Model  → {model_path}")
 print(f"✅  Scaler → {scaler_path}")
 print(f"✅  Meta   → {os.path.join(MODEL_DIR, 'model_meta.joblib')}")
+
+# ─── 8. Generate Validation Plots ───────────────────────────
+print("\n" + "=" * 60)
+print("📈  STEP 8: Generating validation plots")
+print("=" * 60)
+
+sns.set_theme(style="darkgrid")
+
+# Plot 1: Feature Importance
+plt.figure(figsize=(10, 6))
+# Get feature importances and sort them
+importances = model.feature_importances_
+indices = np.argsort(importances)
+plt.barh(range(len(indices)), importances[indices], color='cyan', align='center')
+plt.yticks(range(len(indices)), [useful_sensors[i] for i in indices])
+plt.xlabel('Relative Importance')
+plt.title('Feature Importance (Which sensors drive failure the most?)')
+plt.tight_layout()
+feat_imp_path = os.path.join(MODEL_DIR, "feature_importance.png")
+plt.savefig(feat_imp_path, dpi=300, facecolor='#0a0e1a', edgecolor='none')
+plt.close()
+print(f"✅  Feature Importance Plot → {feat_imp_path}")
+
+# Plot 2: Actual vs Predicted RUL
+plt.figure(figsize=(8, 8))
+plt.scatter(y_test, y_pred, alpha=0.5, color='magenta', edgecolor='white', linewidth=0.5)
+plt.plot([0, RUL_CAP], [0, RUL_CAP], 'w--', linewidth=2) # Perfect prediction line
+plt.xlabel('Actual RUL (Cycles)')
+plt.ylabel('Predicted RUL (Cycles)')
+plt.title(f'Actual vs. Predicted RUL (R² = {r2:.3f})')
+plt.tight_layout()
+val_plot_path = os.path.join(MODEL_DIR, "actual_vs_predicted.png")
+plt.savefig(val_plot_path, dpi=300, facecolor='#0a0e1a', edgecolor='none')
+plt.close()
+print(f"✅  Actual vs Predicted Plot → {val_plot_path}")
 
 print("\n" + "=" * 60)
 print("🎉  TRAINING COMPLETE — Model is ready for the Digital Twin!")

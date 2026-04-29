@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Twin AI — Project Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    @page { size: A4; margin: 18mm 20mm; }
+    @media print {
+      body { background: #fff !important; color: #1a1a2e !important; }
+      .page-break { page-break-before: always; }
+      .no-print { display: none !important; }
+      .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+      h1, h2, h3 { color: #0a0e1a !important; }
+      .cover-page { height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0a0e1a;
+      color: #e0e5f0;
+      line-height: 1.7;
+      font-size: 11pt;
+    }
+
+    .report { max-width: 210mm; margin: 0 auto; padding: 20px; }
+
+    /* ── Cover Page ────────────────────────── */
+    .cover-page {
+      text-align: center;
+      padding: 60px 30px;
+      min-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+    }
+    .cover-img {
+      width: 100%;
+      max-width: 500px;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,240,255,0.15);
+    }
+    .cover-title {
+      font-size: 2.4rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, #00f0ff, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+    .cover-subtitle {
+      font-size: 1.1rem;
+      color: #8899bb;
+      max-width: 500px;
+    }
+    .cover-badge {
+      display: inline-block;
+      padding: 6px 18px;
+      border-radius: 20px;
+      background: rgba(0,240,255,0.1);
+      border: 1px solid rgba(0,240,255,0.3);
+      color: #00f0ff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .cover-meta { color: #6a7a9a; font-size: 0.85rem; margin-top: 10px; }
+
+    /* ── Section ───────────────────────────── */
+    h1 { font-size: 1.6rem; font-weight: 800; margin: 30px 0 12px; border-bottom: 2px solid rgba(0,240,255,0.2); padding-bottom: 6px; }
+    h2 { font-size: 1.15rem; font-weight: 700; margin: 22px 0 8px; color: #00f0ff; }
+    h3 { font-size: 0.95rem; font-weight: 600; margin: 14px 0 6px; color: #a0b0d0; }
+    p { margin-bottom: 10px; }
+    ul, ol { margin: 8px 0 12px 22px; }
+    li { margin-bottom: 4px; }
+
+    .card {
+      background: rgba(12,22,45,0.7);
+      border: 1px solid rgba(0,240,255,0.1);
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin: 14px 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 0.9rem; }
+    th { background: rgba(0,240,255,0.08); color: #00f0ff; text-align: left; padding: 8px 12px; border: 1px solid rgba(0,240,255,0.1); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    td { padding: 7px 12px; border: 1px solid rgba(255,255,255,0.05); }
+    tr:nth-child(even) td { background: rgba(0,0,0,0.15); }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(0,240,255,0.08);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+    pre {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(0,240,255,0.1);
+      border-radius: 8px;
+      padding: 14px 18px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      margin: 10px 0 14px;
+    }
+
+    .highlight { color: #00f0ff; font-weight: 600; }
+    .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 12px 0; }
+    .metric-box { text-align: center; padding: 14px; background: rgba(0,0,0,0.25); border-radius: 8px; border: 1px solid rgba(0,240,255,0.08); }
+    .metric-val { font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 700; color: #00f0ff; }
+    .metric-label { font-size: 0.7rem; color: #6a7a9a; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+
+    .arch-flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 0; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
+    .arch-node { padding: 8px 14px; background: rgba(0,240,255,0.08); border: 1px solid rgba(0,240,255,0.2); border-radius: 8px; }
+    .arch-arrow { color: #00f0ff; font-size: 1.2rem; }
+
+    .status-table td:first-child { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+
+    .print-btn {
+      position: fixed; top: 20px; right: 20px; z-index: 999;
+      padding: 10px 24px; border: 1px solid #00f0ff; border-radius: 8px;
+      background: rgba(0,240,255,0.1); color: #00f0ff;
+      font-family: 'Inter', sans-serif; font-weight: 600; cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .print-btn:hover { background: rgba(0,240,255,0.2); }
+  </style>
+</head>
+<body>
+  <button class="print-btn no-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+
+  <div class="report">
+
+    <!-- ═══ COVER PAGE ═══ -->
+    <div class="cover-page">
+      <img src="frontend/assets/report_cover.png" alt="Digital Twin AI" class="cover-img" />
+      <div class="cover-title">Digital Twin AI — Failure Predictor</div>
+      <div class="cover-subtitle">Real-time 3D Digital Twin Dashboard with AI-Powered Predictive Maintenance for Turbofan Engines</div>
+      <div class="cover-badge">Industry 4.0 · IoT · Machine Learning · XGBoost</div>
+      <div class="cover-meta">
+        NASA CMAPSS Turbofan Degradation Dataset<br>
+        Built with FastAPI · Three.js · Chart.js · Python<br><br>
+        <strong>ML Hackathon 2026</strong>
+      </div>
+    </div>
+
+    <!-- ═══ TABLE OF CONTENTS ═══ -->
+    <div class="page-break"></div>
+    <h1>📑 Table of Contents</h1>
+    <div class="card">
+      <ol>
+        <li><strong>Problem Statement</strong> — Why Predictive Maintenance?</li>
+        <li><strong>Solution Overview</strong> — The Digital Twin Approach</li>
+        <li><strong>System Architecture</strong> — Three-Layer Design</li>
+        <li><strong>Machine Learning Pipeline</strong> — Data, Training, Evaluation</li>
+        <li><strong>3D Digital Twin Visualization</strong> — Procedural Engine</li>
+        <li><strong>Real-Time Dashboard</strong> — Features & Interactions</li>
+        <li><strong>Technology Stack</strong> — Tools & Frameworks</li>
+        <li><strong>Results & Metrics</strong> — Model Performance</li>
+        <li><strong>How to Run</strong> — Setup Instructions</li>
+        <li><strong>Future Scope</strong> — Next Steps</li>
+      </ol>
+    </div>
+
+    <!-- ═══ 1. PROBLEM STATEMENT ═══ -->
+    <div class="page-break"></div>
+    <h1>1. Problem Statement</h1>
+    <p>In industrial settings such as aviation and power generation, <span class="highlight">unplanned equipment failures cost billions annually</span> and can endanger lives. Traditional maintenance approaches are inefficient:</p>
+    <div class="card">
+      <table>
+        <tr><th>Approach</th><th>Strategy</th><th>Problem</th></tr>
+        <tr><td><strong>Reactive</strong></td><td>Fix after failure</td><td>Costly downtime, safety risks</td></tr>
+        <tr><td><strong>Preventive</strong></td><td>Schedule-based maintenance</td><td>Wastes parts, unnecessary stops</td></tr>
+        <tr><td><strong>Predictive ✅</strong></td><td>AI predicts when failure will occur</td><td>Optimal: fix only when needed</td></tr>
+      </table>
+    </div>
+    <h2>Core Question</h2>
+    <p><em>"Given real-time sensor readings from a turbofan engine, can we predict exactly how many operating cycles remain before the engine fails?"</em></p>
+    <p>This metric is called <strong>Remaining Useful Life (RUL)</strong> — the number of cycles left before a critical failure point is reached.</p>
+
+    <!-- ═══ 2. SOLUTION OVERVIEW ═══ -->
+    <h1>2. Solution Overview</h1>
+    <p>We built a <strong>Digital Twin</strong> — a virtual mirror of a physical turbofan engine that:</p>
+    <ul>
+      <li><strong>Ingests</strong> live IoT sensor data (temperature, pressure, speed, fuel flow)</li>
+      <li><strong>Predicts</strong> RUL using a trained XGBoost regression model</li>
+      <li><strong>Visualizes</strong> the engine as an interactive 3D model that reacts in real-time</li>
+      <li><strong>Alerts</strong> operators with audio alarms and visual warnings when failure is imminent</li>
+      <li><strong>Auto-resets</strong> after a complete 300-cycle lifecycle for continuous demonstration</li>
+    </ul>
+
+    <div class="arch-flow">
+      <div class="arch-node">🔧 Sensors (IoT)</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">⚡ FastAPI Backend</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">🧠 XGBoost Model</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">🔮 3D Digital Twin</div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">🚨 Alert System</div>
+    </div>
+
+    <!-- ═══ 3. SYSTEM ARCHITECTURE ═══ -->
+    <div class="page-break"></div>
+    <h1>3. System Architecture</h1>
+
+    <h2>Layer 1: Machine Learning (Offline Training)</h2>
+    <div class="card">
+      <p><strong>File:</strong> <code>train_model.py</code></p>
+      <p>Downloads the NASA CMAPSS dataset via KaggleHub, performs feature engineering (dropping constant sensors, scaling), and trains an XGBoost Regressor with GridSearchCV over 81 hyperparameter configurations. Outputs: <code>turbo_model.pkl</code>, <code>scaler.joblib</code>, <code>model_meta.joblib</code>.</p>
+    </div>
+
+    <h2>Layer 2: Real-Time Backend (FastAPI)</h2>
+    <div class="card">
+      <p><strong>File:</strong> <code>backend/main.py</code> + <code>backend/model_utils.py</code></p>
+      <p>Lightweight edge-computing-style API that simulates IoT sensor streams, runs ML inference, classifies engine health, and serves data via REST and Server-Sent Events (SSE).</p>
+      <table>
+        <tr><th>Endpoint</th><th>Method</th><th>Purpose</th></tr>
+        <tr><td><code>/sensor-data</code></td><td>GET</td><td>Single sensor snapshot + RUL prediction</td></tr>
+        <tr><td><code>/stream</code></td><td>GET</td><td>SSE live stream for real-time updates</td></tr>
+        <tr><td><code>/predict</code></td><td>POST</td><td>Custom sensor input → RUL prediction</td></tr>
+        <tr><td><code>/control</code></td><td>POST</td><td>Engine control (reset, speed_up, pause)</td></tr>
+        <tr><td><code>/model-info</code></td><td>GET</td><td>Model metadata and status</td></tr>
+        <tr><td><code>/health</code></td><td>GET</td><td>Health check</td></tr>
+      </table>
+    </div>
+
+    <h2>Layer 3: 3D Digital Twin Frontend</h2>
+    <div class="card">
+      <p><strong>Files:</strong> <code>frontend/index.html</code>, <code>script.js</code>, <code>engine3d.js</code>, <code>assets/style.css</code></p>
+      <p>Interactive cyberpunk-themed dashboard with a procedurally generated 3D turbofan engine (Three.js), real-time charts (Chart.js), and a Web Audio API alarm system.</p>
+    </div>
+
+    <!-- ═══ 4. ML PIPELINE ═══ -->
+    <div class="page-break"></div>
+    <h1>4. Machine Learning Pipeline</h1>
+
+    <h2>4.1 Dataset: NASA CMAPSS</h2>
+    <p>The <strong>Commercial Modular Aero-Propulsion System Simulation (CMAPSS)</strong> dataset from NASA contains run-to-failure sensor data from simulated turbofan engines. Each engine starts healthy and operates until failure.</p>
+    <div class="card">
+      <table>
+        <tr><th>Property</th><th>Value</th></tr>
+        <tr><td>Dataset</td><td>FD001 (single operating condition, single fault mode)</td></tr>
+        <tr><td>Training engines</td><td>100 units</td></tr>
+        <tr><td>Sensors per reading</td><td>21 sensor channels</td></tr>
+        <tr><td>Operational settings</td><td>3 settings</td></tr>
+        <tr><td>Target variable</td><td>RUL (Remaining Useful Life in cycles)</td></tr>
+      </table>
+    </div>
+
+    <h2>4.2 Feature Engineering</h2>
+    <ul>
+      <li><strong>Dropped constant sensors:</strong> Sensors 1, 5, 6, 10, 16, 18, 19 (near-zero variance)</li>
+      <li><strong>Retained 14 useful sensors:</strong> sensors 2, 3, 4, 7, 8, 9, 11, 12, 13, 14, 15, 17, 20, 21</li>
+      <li><strong>Scaling:</strong> MinMaxScaler applied to normalize sensor ranges</li>
+      <li><strong>RUL computation:</strong> <code>RUL = max_cycle_per_engine - current_cycle</code></li>
+      <li><strong>RUL capping:</strong> Clamped at 125 cycles (early healthy cycles are indistinguishable)</li>
+    </ul>
+
+    <h2>4.3 Model: XGBoost Regressor</h2>
+    <p>We chose XGBoost for its proven performance on tabular regression tasks. GridSearchCV explored 81 combinations:</p>
+    <pre>param_grid = {
+    'n_estimators':    [200, 400, 600],
+    'max_depth':       [4, 6, 8],
+    'learning_rate':   [0.05, 0.1, 0.2],
+    'subsample':       [0.8, 0.9, 1.0]
+}
+# Best: n_estimators=600, max_depth=6, lr=0.1, subsample=0.9</pre>
+
+    <h2>4.4 Results</h2>
+    <div class="metric-grid">
+      <div class="metric-box">
+        <div class="metric-val">0.79</div>
+        <div class="metric-label">R² Score</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-val">18.2</div>
+        <div class="metric-label">RMSE (cycles)</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-val">13.1</div>
+        <div class="metric-label">MAE (cycles)</div>
+      </div>
+    </div>
+
+    <!-- ═══ 5. 3D DIGITAL TWIN ═══ -->
+    <div class="page-break"></div>
+    <h1>5. 3D Digital Twin Visualization</h1>
+    <p>The engine is <strong>procedurally generated</strong> using Three.js geometry primitives — no external 3D model files needed. This keeps the project self-contained and lightweight.</p>
+
+    <h2>5.1 Engine Components</h2>
+    <div class="card">
+      <table>
+        <tr><th>Component</th><th>Geometry</th><th>Animation</th></tr>
+        <tr><td>Nacelle (Casing)</td><td>Translucent cylinder + wireframe</td><td>Shimmer effect</td></tr>
+        <tr><td>Fan (18 blades)</td><td>Box geometries + cone spinner</td><td>Speed driven by sensor_4</td></tr>
+        <tr><td>LPC (14 blades)</td><td>Blade ring + hub torus</td><td>0.85× fan speed</td></tr>
+        <tr><td>HPC (20 blades)</td><td>Blade ring + hub torus</td><td>1.2× fan speed</td></tr>
+        <tr><td>Combustion Chamber</td><td>Glowing torus + sphere</td><td>Pulse driven by sensor_2</td></tr>
+        <tr><td>HPT (16 blades)</td><td>Blade ring (reversed)</td><td>Counter-rotating</td></tr>
+        <tr><td>LPT (12 blades)</td><td>Blade ring (reversed)</td><td>Counter-rotating</td></tr>
+        <tr><td>Exhaust</td><td>Cone + 300 particles</td><td>Additive-blended stream</td></tr>
+      </table>
+    </div>
+
+    <h2>5.2 Real-Time Data Binding</h2>
+    <table>
+      <tr><th>Sensor Input</th><th>Visual Effect</th></tr>
+      <tr><td>Core Speed (sensor_4)</td><td>Fan/compressor rotation speed</td></tr>
+      <tr><td>LPC Temperature (sensor_2)</td><td>Combustion glow intensity</td></tr>
+      <tr><td>Degradation (0→1)</td><td>Engine shake, color shift cyan→orange→red</td></tr>
+      <tr><td>RUL Status</td><td>Exhaust particle color, HUD overlays</td></tr>
+    </table>
+
+    <h2>5.3 Interactive Features</h2>
+    <ul>
+      <li><strong>OrbitControls:</strong> Click-drag to rotate, scroll to zoom</li>
+      <li><strong>Auto-rotate:</strong> Slow orbit for cinematic effect</li>
+      <li><strong>HUD Overlays:</strong> Floating RUL readout and status chip</li>
+      <li><strong>Scanline Overlay:</strong> CRT-style lines for cyberpunk aesthetic</li>
+      <li><strong>Component Labels:</strong> FAN, LPC, HPC, COMB, HPT, LPT</li>
+    </ul>
+
+    <!-- ═══ 6. DASHBOARD FEATURES ═══ -->
+    <div class="page-break"></div>
+    <h1>6. Real-Time Dashboard Features</h1>
+
+    <h2>6.1 Live Sensor Feed</h2>
+    <p>8 IoT sensor channels displayed with real-time values, animated progress bars, and flash-on-update effects. Bars shift from cyan to red as degradation increases.</p>
+
+    <h2>6.2 AI Prediction Panel</h2>
+    <p>Four key metrics: RUL (cycles), Time to Failure (minutes), AI Confidence (%), and System Status — all color-coded by severity.</p>
+
+    <h2>6.3 Health Classification</h2>
+    <div class="card status-table">
+      <table>
+        <tr><th>Status</th><th>RUL Range</th><th>Color</th><th>Action</th></tr>
+        <tr><td style="color:#00ff88">NOMINAL</td><td>> 120 cycles</td><td>Green</td><td>All systems operational</td></tr>
+        <tr><td style="color:#00f0ff">WATCH</td><td>60–120 cycles</td><td>Cyan</td><td>Minor degradation detected</td></tr>
+        <tr><td style="color:#ff9f43">WARNING</td><td>20–60 cycles</td><td>Orange</td><td>Maintenance recommended</td></tr>
+        <tr><td style="color:#ff3366">CRITICAL</td><td>5–20 cycles</td><td>Red</td><td>Failure in ~10 minutes!</td></tr>
+        <tr><td style="color:#ff3366">FAILURE_IMMINENT</td><td>< 5 cycles</td><td>Red pulse</td><td>Immediate action required</td></tr>
+      </table>
+    </div>
+
+    <h2>6.4 Alarm System</h2>
+    <ul>
+      <li><strong>Audio:</strong> Web Audio API dual-oscillator alarm (880Hz square + 110Hz sawtooth)</li>
+      <li><strong>Visual:</strong> Red vignette overlay, pulsing card borders, critical banner</li>
+      <li><strong>Auto-Reset:</strong> After 300 cycles, dramatic failure flash → factory reset</li>
+    </ul>
+
+    <h2>6.5 Demo Speed Control</h2>
+    <p>Speed Up button multiplies degradation rate by 4× per click (up to 32×), allowing judges to see the full NOMINAL → CRITICAL lifecycle in <strong>under 30 seconds</strong>.</p>
+
+    <!-- ═══ 7. TECH STACK ═══ -->
+    <h1>7. Technology Stack</h1>
+    <div class="card">
+      <table>
+        <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+        <tr><td>ML Training</td><td>XGBoost, scikit-learn, KaggleHub</td><td>Model training with GridSearchCV</td></tr>
+        <tr><td>Backend API</td><td>FastAPI, Uvicorn, Python 3.11</td><td>REST + SSE endpoints</td></tr>
+        <tr><td>3D Engine</td><td>Three.js v0.164 (ES Modules)</td><td>Procedural 3D turbofan</td></tr>
+        <tr><td>Charts</td><td>Chart.js 4.4</td><td>RUL trend + sensor telemetry</td></tr>
+        <tr><td>Audio</td><td>Web Audio API</td><td>Critical alarm beeps</td></tr>
+        <tr><td>Styling</td><td>Custom CSS (800+ lines)</td><td>Cyberpunk dark theme</td></tr>
+        <tr><td>Dataset</td><td>NASA CMAPSS (FD001)</td><td>Turbofan run-to-failure data</td></tr>
+      </table>
+    </div>
+
+    <!-- ═══ 8. RESULTS ═══ -->
+    <div class="page-break"></div>
+    <h1>8. Results & Key Achievements</h1>
+    <div class="metric-grid">
+      <div class="metric-box">
+        <div class="metric-val" style="color:#00ff88">R² = 0.79</div>
+        <div class="metric-label">Model Accuracy</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-val" style="color:#a855f7">14</div>
+        <div class="metric-label">Sensor Channels</div>
+      </div>
+      <div class="metric-box">
+        <div class="metric-val" style="color:#ff9f43">81</div>
+        <div class="metric-label">Models Evaluated</div>
+      </div>
+    </div>
+    <ul>
+      <li>✅ Real-time RUL prediction with XGBoost achieving <strong>R² = 0.79</strong></li>
+      <li>✅ 3D procedural turbofan engine — <strong>zero external 3D assets</strong></li>
+      <li>✅ Full lifecycle simulation: NOMINAL → WATCH → WARNING → CRITICAL → auto-reset</li>
+      <li>✅ Audio-visual alarm system with Web Audio API</li>
+      <li>✅ Works in <strong>offline demo mode</strong> without backend</li>
+      <li>✅ Speed-up control for <strong>30-second demo</strong> to judges</li>
+      <li>✅ Responsive design for any screen size</li>
+    </ul>
+
+    <!-- ═══ 9. HOW TO RUN ═══ -->
+    <h1>9. How to Run</h1>
+    <h3>Option A: Full Stack (Backend + Frontend)</h3>
+    <pre># Terminal 1 — Backend
+cd backend
+pip install -r requirements.txt
+python main.py
+# API runs at http://localhost:8000
+
+# Terminal 2 — Frontend
+cd frontend
+python -m http.server 5500
+# Dashboard at http://localhost:5500</pre>
+
+    <h3>Option B: Frontend Only (Demo Mode)</h3>
+    <pre># Just open in browser — works with local simulation
+cd frontend
+python -m http.server 5500</pre>
+
+    <h3>Train Your Own Model (Optional)</h3>
+    <pre>python train_model.py
+# Downloads NASA CMAPSS via KaggleHub
+# Outputs: models/turbo_model.pkl, scaler.joblib</pre>
+
+    <!-- ═══ 10. FUTURE SCOPE ═══ -->
+    <h1>10. Future Scope</h1>
+    <ul>
+      <li><strong>LSTM/Transformer models</strong> for temporal sequence-aware RUL prediction</li>
+      <li><strong>Real IoT integration</strong> via MQTT/Kafka for edge deployment</li>
+      <li><strong>Multi-engine fleet view</strong> with comparative analytics dashboard</li>
+      <li><strong>Explainable AI (SHAP)</strong> to show which sensors drive each prediction</li>
+      <li><strong>Cloud deployment</strong> on AWS/GCP with auto-scaling inference</li>
+      <li><strong>Maintenance scheduling optimizer</strong> using predicted failure windows</li>
+      <li><strong>AR/VR overlay</strong> for field technicians using WebXR</li>
+    </ul>
+
+    <div class="card" style="text-align:center; margin-top: 30px; padding: 30px;">
+      <div style="font-size: 1.3rem; font-weight: 700; color: #00f0ff;">Thank You</div>
+      <div style="color: #6a7a9a; margin-top: 6px;">Digital Twin AI — Failure Predictor</div>
+      <div style="color: #6a7a9a; font-size: 0.8rem; margin-top: 4px;">ML Hackathon 2026</div>
+    </div>
+
+  </div>
+</body>
+</html>

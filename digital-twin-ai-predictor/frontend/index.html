@@ -7,6 +7,14 @@
   <title>Digital Twin AI — Failure Predictor</title>
   <link rel="stylesheet" href="assets/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.164.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.164.0/examples/jsm/"
+      }
+    }
+  </script>
 </head>
 <body>
 
@@ -25,7 +33,8 @@
         <span id="status-label">NOMINAL</span>
       </div>
       <div class="cycle-counter">
-        Cycle: <strong id="cycle-count">0</strong>
+        Cycle: <strong id="cycle-count">0</strong> <span class="cycle-max">/ 300</span>
+        <div class="cycle-progress"><div class="cycle-progress-fill" id="cycle-progress-fill"></div></div>
       </div>
     </div>
   </header>
@@ -91,21 +100,18 @@
         <h2><span class="icon">🔮</span> Digital Twin — Engine Visualization</h2>
         <span class="card-badge badge-ai">AI TWIN</span>
       </div>
-      <div class="card-body">
-        <div class="twin-container">
-          <div class="engine-visual" id="engine-visual">
-            <div class="engine-ring ring-outer" id="ring-outer"></div>
-            <div class="engine-ring ring-middle" id="ring-middle"></div>
-            <div class="engine-ring ring-inner" id="ring-inner"></div>
-            <div class="engine-ring ring-core" id="ring-core">
-              <span style="font-size:2.5rem;" id="core-icon">⚙️</span>
-            </div>
+      <div class="card-body" style="padding:0;">
+        <div class="twin-container-3d">
+          <div id="engine-3d-viewport">
+            <div class="scanline-overlay"></div>
           </div>
-          <div class="engine-status-text nominal" id="twin-status">NOMINAL</div>
-          <div style="color:var(--muted);font-size:0.75rem;font-family:var(--font-mono);text-align:center;">
-            Degradation: <span id="degradation-val" style="color:var(--cyan);">0.00%</span>
-            &nbsp;·&nbsp;
-            RUL: <span id="rul-inline" style="color:var(--green);">200</span> cycles
+          <div class="twin-info-bar">
+            <div class="engine-status-text nominal" id="twin-status">NOMINAL</div>
+            <div style="color:var(--muted);font-size:0.75rem;font-family:var(--font-mono);text-align:center;">
+              Degradation: <span id="degradation-val" style="color:var(--cyan);">0.00%</span>
+              &nbsp;·&nbsp;
+              RUL: <span id="rul-inline" style="color:var(--green);">200</span> cycles
+            </div>
           </div>
         </div>
       </div>
@@ -173,6 +179,7 @@
       <button class="btn" id="btn-speedup" onclick="controlEngine('speed_up')">⏩ Speed Up Degradation</button>
       <button class="btn" id="btn-slowdown" onclick="controlEngine('slow_down')">⏪ Slow Down</button>
       <button class="btn btn-danger" id="btn-pause" onclick="togglePause()">⏸ Pause</button>
+      <button class="btn btn-report" id="btn-report" onclick="generateDiagnosticReport()">📋 Generate Report</button>
     </div>
 
   </main>
@@ -181,6 +188,7 @@
     Digital Twin AI Failure Predictor · Built with FastAPI + Chart.js · NASA CMAPSS Dataset · Industry 4.0
   </footer>
 
+  <script type="module" src="engine3d.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
